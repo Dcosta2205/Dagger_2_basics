@@ -1,51 +1,59 @@
-## In this sample we will look at the dependency injection Dagger basics 
-
-**Branch master**
-
-Lets consider the example of car.
-
-Car has Engine and Wheels
-Engine has Cylinder, piston 
-Wheels has tyres and Rims
-
-and these dependency continues
-
-**Engine**
+## Field Injection
 
 ```
-class Engine
+/*
+This is an important interface which will help our activity to find the Car class.
+This works on annotation processor
+ */
+@Component
+interface CarComponent {
+
+    /*
+    Since we do not write any constructors for Activities in Android we need to inject the
+    activity so that any Fields with @inject declared in Activities can be found.
+     */
+    fun inject(mainActivity: MainActivity)
+}
 ```
 
-**Wheels**
+**MainActivity**
 
 ```
-class Wheels
-```
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import javax.inject.Inject
 
-**Car**
+class MainActivity : AppCompatActivity() {
+    /*
+    When using field injection make sure the field is public or else Dagger will throw an error
+    as it cannot find the object to instantiate
+     */
+    @Inject
+    lateinit var car: Car
 
-```
-class Car constructor(engine: Engine, wheels: Wheels) {
-    fun driveCar() {
-        Log.d("Lloyd", "Driving car")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        DaggerCarComponent.create().inject(this)
+        car.driveCar()
     }
 }
 ```
 
-### How to call the `driveCar()` method ?
+## We can also apply the Field injection to Car class as below
 
 ```
-      /*
-        In order to create an object of car we need to create the Engine and wheel objects
-        as car has a dependency on Engine and Wheels.
+/*
+Injecting the Car via constructor injection and Engine, Wheels via Field injection
+ */
+class Car @Inject constructor(engine: Engine, wheels: Wheels) {
+    @Inject
+    lateinit var engine: Engine
 
-        Engine might also have dependency on Cylinder, piston etc
-        Wheels might also have dependency on Tyres, Rims etc
-
-        So we end up creating many objects in order to create a car object
-         */
-        val engine = Engine()
-        val wheels = Wheels()
-        val car = Car(engine, wheels)
-        car.driveCar()
+    @Inject
+    lateinit var wheels: Wheels
+    fun driveCar() {
+        Log.d("Lloyd", "Driving....")
+    }
+}
 ```
