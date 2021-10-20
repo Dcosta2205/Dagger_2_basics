@@ -6,7 +6,7 @@ import dagger.Component
 This is an important interface which will help our activity to find the Car class.
 This works on annotation processor
  */
-@Component
+@Component(modules = [WheelModule::class])
 interface CarComponent {
 
     /*
