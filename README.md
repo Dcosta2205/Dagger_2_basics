@@ -1,51 +1,90 @@
-## In this sample we will look at the dependency injection Dagger basics 
+## In this sample we will look at the use of @module and @provides
 
-**Branch master**
+In real projects we use most of the libraries where we don't have control over the classes and we cannot use constructor injection. Consider the below example
 
-Lets consider the example of car.
+### We have Wheels class and it has dependency on Tyres and Rims. Imagine we are not manufacturing the tyres and Rims and getting it from third party vendors. How do I get the dependency of Tyre and Rim?
 
-Car has Engine and Wheels
-Engine has Cylinder, piston 
-Wheels has tyres and Rims
+**Tyres**
 
-and these dependency continues
-
-**Engine**
 
 ```
-class Engine
+/**
+ * Imagine we are getting the tyres from third party and we cannot modify the class
+ */
+class Tyres
 ```
 
-**Wheels**
+**Rim**
 
 ```
-class Wheels
+/**
+ * Imagine we are getting the Rims from third party and we cannot modify the class
+ */
+class Rim
 ```
 
-**Car**
+**Wheeks**
 
 ```
-class Car constructor(engine: Engine, wheels: Wheels) {
-    fun driveCar() {
-        Log.d("Lloyd", "Driving car")
+/*
+Injecting Wheels via constructor
+ */
+class Wheels constructor(tyres: Tyres, rim: Rim)
+```
+
+Since `Tyres` and `Rim` are from third party, Dagger will fail to create the objects for them as we cannot annotate with @Inject inside those classes.
+
+So we need to create a class called `WheeModule` and provide all the necessary objects
+
+
+**WheelModule**
+
+```
+
+import dagger.Module
+import dagger.Provides
+
+@Module
+class WheelModule {
+
+    @Provides
+    fun provideTyres(): Tyres {
+        return Tyres()
+    }
+
+    @Provides
+    fun provideRim(): Rim {
+        return Rim()
+    }
+
+    @Provides
+    fun provideWheels(rim: Rim, tyres: Tyres): Wheels {
+        return Wheels(tyres, rim)
     }
 }
 ```
 
-### How to call the `driveCar()` method ?
+**CarComponent**
+
 
 ```
-      /*
-        In order to create an object of car we need to create the Engine and wheel objects
-        as car has a dependency on Engine and Wheels.
+import dagger.Component
 
-        Engine might also have dependency on Cylinder, piston etc
-        Wheels might also have dependency on Tyres, Rims etc
+/*
+This is an important interface which will help our activity to find the Car class.
+This works on annotation processor.
 
-        So we end up creating many objects in order to create a car object
-         */
-        val engine = Engine()
-        val wheels = Wheels()
-        val car = Car(engine, wheels)
-        car.driveCar()
+Make sure to include all the modules
+ */
+@Component(modules = [WheelModule::class])
+interface CarComponent {
+
+    /*
+    Since we do not write any constructors for Activities in Android we need to inject the
+    activity so that any Fields with @inject declared in Activities can be found.
+     */
+    fun inject(mainActivity: MainActivity)
+}
 ```
+
+
