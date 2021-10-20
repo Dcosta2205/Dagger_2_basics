@@ -4,9 +4,11 @@ import dagger.Component
 
 /*
 This is an important interface which will help our activity to find the Car class.
-This works on annotation processor
+This works on annotation processor.
+
+Make sure to include all the modules
  */
-@Component(modules = [WheelModule::class])
+@Component(modules = [WheelModule::class, EngineModule::class])
 interface CarComponent {
 
     /*

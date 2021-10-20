@@ -1,8 +1,6 @@
 package com.lloyd.daggerdemo
 
-import javax.inject.Inject
+interface Engine {
 
-/*
-Injecting Engine via constructor
- */
-class Engine @Inject constructor()
+    fun startEngine()
+}
