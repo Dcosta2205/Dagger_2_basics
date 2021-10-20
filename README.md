@@ -58,3 +58,5 @@ Make sure you check the branches in the following order
 2. constructor_injection
 3. field_injection
 4. method_injection
+5. module
+6. interface_dependency
