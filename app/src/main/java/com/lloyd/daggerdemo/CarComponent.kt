@@ -9,5 +9,9 @@ This works on annotation processor
 @Component
 interface CarComponent {
 
-    fun getCar(): Car
+    /*
+    Since we do not write any constructors for Activities in Android we need to inject the
+    activity so that any Fields with @inject declared in Activities can be found.
+     */
+    fun inject(mainActivity: MainActivity)
 }
