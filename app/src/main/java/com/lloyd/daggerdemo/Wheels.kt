@@ -1,3 +1,8 @@
 package com.lloyd.daggerdemo
 
-class Wheels
+import javax.inject.Inject
+
+/*
+Injecting Wheels via constructor
+ */
+class Wheels @Inject constructor()
