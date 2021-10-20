@@ -50,7 +50,7 @@ class Car constructor(engine: Engine, wheels: Wheels) {
         car.driveCar()
 ```
 
-**Why Dagger? **
+**Why Dagger?**
 
 The idea behind dagger-android is to reduce the boilerplate needed to inject objects.
 
