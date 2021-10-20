@@ -1,51 +1,41 @@
-## In this sample we will look at the dependency injection Dagger basics 
+### In this branch lets see how Dagger injects the methods via method injection. Consider a Car has a remote and we need to connect the remote to Car
 
-**Branch master**
-
-Lets consider the example of car.
-
-Car has Engine and Wheels
-Engine has Cylinder, piston 
-Wheels has tyres and Rims
-
-and these dependency continues
-
-**Engine**
+**Remote**
 
 ```
-class Engine
-```
+import android.util.Log
+import javax.inject.Inject
 
-**Wheels**
+class Remote @Inject constructor() {
 
-```
-class Wheels
+    fun setListener(car: Car) {
+        Log.d("Lloyd", "Remote connected")
+    }
+}
 ```
 
 **Car**
 
 ```
-class Car constructor(engine: Engine, wheels: Wheels) {
+import android.util.Log
+import javax.inject.Inject
+
+/*
+Injecting the Car via constructor injection
+ */
+class Car @Inject constructor(engine: Engine, wheels: Wheels) {
     fun driveCar() {
         Log.d("Lloyd", "Driving car")
+    }
+
+    /*
+    This will be automatically called by Dagger as soon as the Car object is created
+     */
+    @Inject
+    fun enableRemote(remote: Remote) {
+        remote.setListener(this)
     }
 }
 ```
 
-### How to call the `driveCar()` method ?
-
-```
-      /*
-        In order to create an object of car we need to create the Engine and wheel objects
-        as car has a dependency on Engine and Wheels.
-
-        Engine might also have dependency on Cylinder, piston etc
-        Wheels might also have dependency on Tyres, Rims etc
-
-        So we end up creating many objects in order to create a car object
-         */
-        val engine = Engine()
-        val wheels = Wheels()
-        val car = Car(engine, wheels)
-        car.driveCar()
-```
+As soon as your run the program the `Remote Connected` Log will be displayed. We are not calling `enableRemote()` manually the dagger itself calls it while creating the `Car` object.
