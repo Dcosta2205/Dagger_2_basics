@@ -1,51 +1,76 @@
-## In this sample we will look at the dependency injection Dagger basics 
+Add the below dependencies in app/build.gradle
 
-**Branch master**
+```
+    implementation 'com.google.dagger:dagger:2.38.1'
+    kapt 'com.google.dagger:dagger-compiler:2.38.1'
+ ```
+ 
+ Make sure to add the below plugin for annotation processor
+ 
+ ```
+     id 'kotlin-kapt'
+```
 
-Lets consider the example of car.
-
-Car has Engine and Wheels
-Engine has Cylinder, piston 
-Wheels has tyres and Rims
-
-and these dependency continues
+## Change the classes as below
 
 **Engine**
 
 ```
-class Engine
+
+import javax.inject.Inject
+
+/*
+Injecting Engine via constructor
+ */
+class Engine @Inject constructor()
 ```
 
 **Wheels**
 
 ```
-class Wheels
+import javax.inject.Inject
+
+/*
+Injecting Wheels via constructor
+ */
+class Wheels @Inject constructor()
 ```
 
 **Car**
 
 ```
-class Car constructor(engine: Engine, wheels: Wheels) {
+import android.util.Log
+import javax.inject.Inject
+
+/*
+Injecting the Car via constructor injection
+ */
+class Car @Inject constructor(engine: Engine, wheels: Wheels) {
     fun driveCar() {
         Log.d("Lloyd", "Driving car")
     }
 }
 ```
 
-### How to call the `driveCar()` method ?
+**MainActivity**
+
 
 ```
-      /*
-        In order to create an object of car we need to create the Engine and wheel objects
-        as car has a dependency on Engine and Wheels.
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
-        Engine might also have dependency on Cylinder, piston etc
-        Wheels might also have dependency on Tyres, Rims etc
+class MainActivity : AppCompatActivity() {
+    private lateinit var car: Car
 
-        So we end up creating many objects in order to create a car object
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        /*
+        Getting the car object from component class. DaggerCarComponent class is generated at
+        compile time and it internally generates all the required dependencies
          */
-        val engine = Engine()
-        val wheels = Wheels()
-        val car = Car(engine, wheels)
+        car = DaggerCarComponent.create().getCar()
         car.driveCar()
+    }
+}
 ```
