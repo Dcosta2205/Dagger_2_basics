@@ -64,3 +64,5 @@ Make sure you check the branches in the following order
 4. method_injection
 5. module
 6. interface_dependency
+7. runtime_dependency
+8. singleton_dependency
