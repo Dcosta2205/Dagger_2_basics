@@ -1,66 +1,126 @@
-## In this project we will look at the dependency injection Dagger basics and the concepts are demonstrated in different branches
+## Lets imagine a owner has 2 cars but he has only one driver who will drive both the vehicles.
 
-**What is an Dependency?**
+Lets consider the below driver class
 
-Lets consider the example of car.
-
-Car has Engine and Wheels
-Engine has Cylinder, piston 
-Wheels has tyres and Rims
-
-and these dependency continues
-
-**Engine**
+**Driver**
 
 ```
-class Engine
+
+import javax.inject.Inject
+
+class Driver @Inject constructor()
 ```
 
-**Wheels**
-
-```
-class Wheels
-```
+Now since our car has a driver, lets add our driver there
 
 **Car**
 
 ```
-class Car constructor(engine: Engine, wheels: Wheels) {
+
+import android.util.Log
+import javax.inject.Inject
+
+/*
+Injecting the Car via constructor injection
+ */
+class Car @Inject constructor(val engine: Engine, wheels: Wheels, val driver: Driver) {
     fun driveCar() {
-        Log.d("Lloyd", "Driving car")
+        engine.startEngine()
+        Log.d("Lloyd", "${driver} is driving car $this")
+    }
+
+    /*
+    This will be automatically called by Dagger as soon as the Car object is created
+     */
+    @Inject
+    fun enableRemote(remote: Remote) {
+        remote.setListener(this)
     }
 }
 ```
 
-### How to call the `driveCar()` method ?
+Now since we have 2 cars and one driver, lets see what happens when I run the below code
+
+**MainActivity**
 
 ```
-      /*
-        In order to create an object of car we need to create the Engine and wheel objects
-        as car has a dependency on Engine and Wheels.
+class MainActivity : AppCompatActivity() {
+    /*
+    When using field injection make sure the field is public or else Dagger will throw an error
+    as it cannot find the object to instantiate
+     */
+    @Inject
+    lateinit var car1: Car
 
-        Engine might also have dependency on Cylinder, piston etc
-        Wheels might also have dependency on Tyres, Rims etc
+    @Inject
+    lateinit var car2: Car
 
-        So we end up creating many objects in order to create a car object
-         */
-        val engine = Engine()
-        val wheels = Wheels()
-        val car = Car(engine, wheels)
-        car.driveCar()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        DaggerCarComponent.builder().engineModule(EngineModule(120)).build().inject(this)
+        car1.driveCar()
+        car2.driveCar()
+    }
+}
 ```
 
-**Why Dagger?**
+**Output**
 
-The idea behind dagger-android is to reduce the boilerplate needed to inject objects.
+```
+com.lloyd.daggerdemo.Driver@47f5102 is driving car com.lloyd.daggerdemo.Car@e704a13
+com.lloyd.daggerdemo.Driver@a138450 is driving car com.lloyd.daggerdemo.Car@27fe649
+```
+
+From the above it is clear that even though we have just one driver we are getting two different driver objects (@47f5102 and @a138450).
+
+## How to deal with singleton?
+
+**Driver**
+
+
+```
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class Driver @Inject constructor()
+```
+
+Also annotate `CarComponent` with @SingleTon
+
+```
+import dagger.Component
+import javax.inject.Singleton
+
+/*
+This is an important interface which will help our activity to find the Car class.
+This works on annotation processor.
+
+Make sure to include all the modules
+ */
+@Singleton
+@Component(modules = [WheelModule::class, EngineModule::class])
+interface CarComponent {
+
+    /*
+    Since we do not write any constructors for Activities in Android we need to inject the
+    activity so that any Fields with @inject declared in Activities can be found.
+     */
+    fun inject(mainActivity: MainActivity)
+}
+```
+
+**Output**
+
+
+```
+com.lloyd.daggerdemo.Driver@47f5102 is driving car com.lloyd.daggerdemo.Car@e704a13
+com.lloyd.daggerdemo.Driver@47f5102 is driving car com.lloyd.daggerdemo.Car@a138450
+```
+
+From the output it is clear that we have same drivers for both the cars.
 
 **Note**
 
-Make sure you check the branches in the following order
-
-1. master
-2. constructor_injection
-3. field_injection
-4. method_injection
-5. module
-6. interface_dependency
+If the dependency is recieved via @Provides then annotate the method with @SingleTon
