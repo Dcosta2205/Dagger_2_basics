@@ -1,6 +1,6 @@
-## In this sample we will look at the dependency injection Dagger basics 
+## In this project we will look at the dependency injection Dagger basics and the concepts are demonstrated in different branches
 
-**Branch master**
+**What is an Dependency?**
 
 Lets consider the example of car.
 
@@ -49,3 +49,18 @@ class Car constructor(engine: Engine, wheels: Wheels) {
         val car = Car(engine, wheels)
         car.driveCar()
 ```
+
+**Why Dagger?**
+
+The idea behind dagger-android is to reduce the boilerplate needed to inject objects.
+
+**Note**
+
+Make sure you check the branches in the following order
+
+1. master
+2. constructor_injection
+3. field_injection
+4. method_injection
+5. module
+6. interface_dependency
