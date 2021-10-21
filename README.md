@@ -1,51 +1,57 @@
-## In this sample we will look at the dependency injection Dagger basics 
+## In most of the Android projects few classes have dependency on context class, if the constructor of the class has a dependency on context, how will Dagger provide it?
 
-**Branch master**
+Here in the previous example(branch `interface_dependency`), we have a `PetrolEngine`. If this petrol engine takes an `horsePower` as the parameter in the constructor, how will Dagger provide it ? As the power is decided at runtime and not compile time.
 
-Lets consider the example of car.
-
-Car has Engine and Wheels
-Engine has Cylinder, piston 
-Wheels has tyres and Rims
-
-and these dependency continues
-
-**Engine**
+**PetrolEngine**
 
 ```
-class Engine
-```
+import android.util.Log
 
-**Wheels**
-
-```
-class Wheels
-```
-
-**Car**
-
-```
-class Car constructor(engine: Engine, wheels: Wheels) {
-    fun driveCar() {
-        Log.d("Lloyd", "Driving car")
+class PetrolEngine constructor(val horsepower: Int) : Engine {
+    override fun startEngine() {
+        Log.d("Lloyd", "Starting petrol engine with power $horsepower")
     }
 }
 ```
 
-### How to call the `driveCar()` method ?
+I have removed `@Inject` in the constructor declaration as the Dagger doesn't know from where to provide the horsepower.
+
+**EngineModule**
 
 ```
-      /*
-        In order to create an object of car we need to create the Engine and wheel objects
-        as car has a dependency on Engine and Wheels.
+import dagger.Module
+import dagger.Provides
 
-        Engine might also have dependency on Cylinder, piston etc
-        Wheels might also have dependency on Tyres, Rims etc
+@Module
+class EngineModule constructor(val horsePower: Int) {
 
-        So we end up creating many objects in order to create a car object
-         */
-        val engine = Engine()
-        val wheels = Wheels()
-        val car = Car(engine, wheels)
+    @Provides
+    fun provideEngine(): Engine {
+        return PetrolEngine(horsePower)
+    }
+}
+```
+
+Now the generated `DaggerCarComponent` won't have method `create()` as one of the module has a runtime dependency. Here we will be using the `builder()` as follows
+
+```
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import javax.inject.Inject
+
+class MainActivity : AppCompatActivity() {
+    /*
+    When using field injection make sure the field is public or else Dagger will throw an error
+    as it cannot find the object to instantiate
+     */
+    @Inject
+    lateinit var car: Car
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        DaggerCarComponent.builder().engineModule(EngineModule(120)).build().inject(this)
         car.driveCar()
+    }
+}
 ```
