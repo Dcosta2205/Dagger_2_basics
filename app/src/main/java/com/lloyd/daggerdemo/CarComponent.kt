@@ -1,6 +1,7 @@
 package com.lloyd.daggerdemo
 
 import dagger.Component
+import javax.inject.Singleton
 
 /*
 This is an important interface which will help our activity to find the Car class.
@@ -8,6 +9,7 @@ This works on annotation processor.
 
 Make sure to include all the modules
  */
+@Singleton
 @Component(modules = [WheelModule::class, EngineModule::class])
 interface CarComponent {
 
