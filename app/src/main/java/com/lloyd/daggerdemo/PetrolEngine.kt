@@ -1,10 +1,9 @@
 package com.lloyd.daggerdemo
 
 import android.util.Log
-import javax.inject.Inject
 
-class PetrolEngine @Inject constructor() : Engine {
+class PetrolEngine constructor(val horsepower: Int) : Engine {
     override fun startEngine() {
-        Log.d("Lloyd", "Starting petrol engine")
+        Log.d("Lloyd", "Starting petrol engine with power $horsepower")
     }
 }
