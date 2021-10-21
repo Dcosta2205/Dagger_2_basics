@@ -6,10 +6,10 @@ import javax.inject.Inject
 /*
 Injecting the Car via constructor injection
  */
-class Car @Inject constructor(val engine: Engine, wheels: Wheels) {
+class Car @Inject constructor(val engine: Engine, wheels: Wheels, val driver: Driver) {
     fun driveCar() {
         engine.startEngine()
-        Log.d("Lloyd", "Driving car")
+        Log.d("Lloyd", "${driver} is driving car $this")
     }
 
     /*

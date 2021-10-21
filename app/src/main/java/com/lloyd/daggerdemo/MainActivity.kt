@@ -10,12 +10,16 @@ class MainActivity : AppCompatActivity() {
     as it cannot find the object to instantiate
      */
     @Inject
-    lateinit var car: Car
+    lateinit var car1: Car
+
+    @Inject
+    lateinit var car2: Car
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         DaggerCarComponent.builder().engineModule(EngineModule(120)).build().inject(this)
-        car.driveCar()
+        car1.driveCar()
+        car2.driveCar()
     }
 }
